@@ -4,6 +4,8 @@ import { loadJsonl } from "./hooks/useJsonlLoader";
 import KPICard from "./components/KPIcard";
 import LineChartComponent from "./components/linearChart";
 import Insights from "./components/insights";
+import StateBand from "./components/stateBand";
+import Sparkline from "./components/sparkline";
 
 import {
   computeUptimePercents,
@@ -16,12 +18,17 @@ import {
 
 export default function App() {
   const [data, setData] = useState([]);
+  const [windowSize, setWindowSize] = useState(5); // default 15 min
+
 
   useEffect(() => {
     loadJsonl().then(setData);
   }, []);
 
-  const chartData = data.map((d) => ({
+  const now = data.length>0 && data[data.length - 1].ts;
+  const windowData = data.filter(d => (now - d.ts) / 1000 <= windowSize * 60);
+
+  const chartData = windowData.map((d) => ({
     time: d.ts.toLocaleTimeString(),
     kw: d.kw,
     temp: d.temp_c,
@@ -29,22 +36,78 @@ export default function App() {
     ir: d.ir,
   }));
 
-  const uptime = computeUptimePercents(data);
-  const avgKwVal = avgKW(data);
-  const energyVal = energyKWh(data);
-  const pfVal = avgPF(data);
-  const throughputVal = throughput(data);
-  const imbalanceVal = phaseImbalancePercent(data);
+  const uptime = computeUptimePercents(windowData);
+  const avgKwVal = avgKW(windowData);
+  const energyVal = energyKWh(windowData);
+  const pfVal = avgPF(windowData);
+  const throughputVal = throughput(windowData);
+  const imbalanceVal = phaseImbalancePercent(windowData);
+
+  const throughputData = windowData.map((d, i) => {
+  if (i < 60) return { time: d.ts, rate: 0 };
+
+  const delta = d.count_total - data[i - 60].count_total;
+  const unitsPerMin = delta; // because 60 sec window
+
+  return {
+    time: d.ts.toLocaleTimeString(),
+    rate: unitsPerMin
+  };
+});
+
+
+
 
   const insights = [
-    `Peak power reached ${Math.max(...data.map((d) => d.kw))} kW`,
+    `Peak power reached ${Math.max(...windowData.map((d) => d.kw))} kW`,
     `Phase imbalance: ${imbalanceVal.toFixed(2)}%`,
     `Average PF: ${pfVal.toFixed(2)}`,
   ];
 
+//   const stateBandData = data.map((d, i) => {
+//   return {
+//     time: d.ts.toLocaleTimeString(),
+//     state: d.state
+//   };
+// });
+const stateColor = {
+  RUN: "#28a745",     // green
+  IDLE: "#f0ad4e",    // yellow
+  OFF: "#6c757d"      // gray
+};
+
+const stateBandData = [];
+
+for (let i = 0; i < windowData.length - 1; i++) {
+  const start = windowData[i].ts;
+  const end = windowData[i + 1].ts;
+  const durationSec = (end - start) / 1000;
+
+  stateBandData.push({
+    state: windowData[i].state,
+    duration: durationSec
+  });
+}
+
+
+
+
+
+
+
   return (
     <div className="w-full ">
       <h2>Machine Dashboard</h2>
+      <select
+  value={windowSize}
+  onChange={(e) => setWindowSize(Number(e.target.value))}
+  className="form-select w-auto"
+>
+  <option value={5}>Last 5 min</option>
+  <option value={15}>Last 15 min</option>
+  <option value={30}>Last 30 min</option>
+</select>
+
 
      <div className="d-flex gap-3 flex-wrap">
 
@@ -82,6 +145,12 @@ export default function App() {
       data={chartData}
       lines={[{ key: "kw", color: "#0d6efd" }]}
     />
+    <StateBand
+  data={stateBandData}
+  stateColor={stateColor}
+ 
+/>
+
     </div>
    <div className="w-50">
     <LineChartComponent
@@ -91,7 +160,13 @@ export default function App() {
         { key: "vr", color: "green" },
       ]}
     />
+    <Sparkline data={throughputData} />
+
   </div>
+  
+
+
+
 
   {/* RIGHT COLUMN (if any) */}
   <div style={{ flex: "0 0 280px" }}>

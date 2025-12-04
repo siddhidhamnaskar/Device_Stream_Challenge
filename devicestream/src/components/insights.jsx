@@ -1,3 +1,5 @@
+
+
 export default function Insights({ insights }) {
   return (
     <div className="card shadow-sm p-2" style={{ maxHeight: "200px" }}>
