@@ -24,7 +24,7 @@ export async function loadJsonl() {
       kwh_total: d.kwh_total,
       pf: d.pf,
       temp: d.temp_c,
-      count: d.count_total,
+      count_total: d.count_total,
       state: d.state,
       status: d.status,
       alarm: d.alarm_code

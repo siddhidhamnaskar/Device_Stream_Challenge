@@ -1,14 +1,30 @@
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 
-export default function LineChartComponent({ data, dataKey }) {
+export default function LineChartComponent({ data, lines }) {
   return (
-    <LineChart width={900} height={300} data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="time" />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Line type="monotone" dataKey={dataKey} stroke="#0d6efd" dot={false} />
-    </LineChart>
+    <div className="card mb-3">
+      <div className="card-body">
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis />
+            <Tooltip />
+            {lines.map((l, i) => (
+              <Line key={i} dataKey={l.key} stroke={l.color} dot={false} />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 }
