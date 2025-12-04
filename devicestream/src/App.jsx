@@ -6,6 +6,8 @@ import LineChartComponent from "./components/linearChart";
 import Insights from "./components/insights";
 import StateBand from "./components/stateBand";
 import Sparkline from "./components/sparkline";
+import { exportToCSV } from "./utils/exportCSV";
+
 
 import {
   computeUptimePercents,
@@ -25,8 +27,11 @@ export default function App() {
     loadJsonl().then(setData);
   }, []);
 
-  const now = data.length>0 && data[data.length - 1].ts;
-  const windowData = data.filter(d => (now - d.ts) / 1000 <= windowSize * 60);
+  const now = data[data.length - 1]?.ts;
+const windowData = data.filter(
+  d => (now - d.ts) / 1000 <= windowSize * 60
+);
+
 
   const chartData = windowData.map((d) => ({
     time: d.ts.toLocaleTimeString(),
@@ -107,6 +112,16 @@ for (let i = 0; i < windowData.length - 1; i++) {
   <option value={15}>Last 15 min</option>
   <option value={30}>Last 30 min</option>
 </select>
+  <button
+  className="btn btn-primary"
+  onClick={() => {
+    const filename = `window_${windowSize}min_${Date.now()}.csv`;
+    exportToCSV(windowData, filename);
+  }}
+>
+  Export CSV
+</button>
+
 
 
      <div className="d-flex gap-3 flex-wrap">
