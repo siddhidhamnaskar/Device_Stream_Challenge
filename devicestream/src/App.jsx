@@ -22,6 +22,9 @@ export default function App() {
   const [data, setData] = useState([]);
   const [windowSize, setWindowSize] = useState(5); // default 15 min
   const [useSSE, setUseSSE] = useState(false);
+  const [lastMessageTime, setLastMessageTime] = useState(null);
+  const [gapDetected, setGapDetected] = useState(false);
+
 
 
   useEffect(() => {
@@ -32,6 +35,23 @@ export default function App() {
 const windowData = data.filter(
   d => (now - d.ts) / 1000 <= windowSize * 60
 );
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (!lastMessageTime) return;
+
+    const secondsSinceLast = (Date.now() - lastMessageTime.getTime()) / 1000;
+
+    if (secondsSinceLast > 10) {
+      setGapDetected(true);
+    } else {
+      setGapDetected(false);
+    }
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [lastMessageTime]);
+
 
 
   useEffect(() => {
@@ -163,6 +183,23 @@ for (let i = 0; i < windowData.length - 1; i++) {
 >
   Export CSV
 </button>
+
+{gapDetected && (
+  <div
+    style={{
+      backgroundColor: "red",
+      color: "white",
+      padding: "8px 16px",
+      textAlign: "center",
+      fontWeight: "bold",
+      borderRadius: "6px",
+      marginBottom: "10px"
+    }}
+  >
+    🚨 No data &gt; 10 seconds
+  </div>
+)}
+
 
 
 
