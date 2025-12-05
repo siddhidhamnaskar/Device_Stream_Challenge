@@ -7,6 +7,7 @@ import Insights from "./components/insights";
 import StateBand from "./components/stateBand";
 import Sparkline from "./components/sparkline";
 import { exportToCSV } from "./utils/exportCSV";
+import './App.css'
 
 
 import {
@@ -21,7 +22,7 @@ import {
 export default function App() {
   const [data, setData] = useState([]);
   const [windowSize, setWindowSize] = useState(5); // default 15 min
-  const [useSSE, setUseSSE] = useState(false);
+  const [useSSE, setUseSSE] = useState(true);
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [gapDetected, setGapDetected] = useState(false);
 
@@ -151,40 +152,11 @@ for (let i = 0; i < windowData.length - 1; i++) {
 
 
   return (
-    <div className="w-full ">
-      <h2>Machine Dashboard</h2>
-      <select
-  value={windowSize}
-  onChange={(e) => setWindowSize(Number(e.target.value))}
-  className="form-select w-auto"
->
-  <option value={5}>Last 5 min</option>
-  <option value={15}>Last 15 min</option>
-  <option value={30}>Last 30 min</option>
-</select>
-<div className="form-check form-switch mb-3">
-  <input
-    className="form-check-input"
-    type="checkbox"
-    checked={useSSE}
-    onChange={() => setUseSSE(!useSSE)}
-  />
-  <label className="form-check-label">
-    Live SSE (http://localhost:8080/stream)
-  </label>
-</div>
-
-  <button
-  className="btn btn-primary"
-  onClick={() => {
-    const filename = `window_${windowSize}min_${Date.now()}.csv`;
-    exportToCSV(windowData, filename);
-  }}
->
-  Export CSV
-</button>
-
-{gapDetected && (
+    <main className="w-full ">
+      <header className="d-flex justify-content-between align-items-center p-2 bg-dark text-white rounded">
+      <h3 className="m-0">Device Dashboard</h3>
+      <span className="badge bg-success">Live SSE</span>
+      {gapDetected && (
   <div
     style={{
       backgroundColor: "red",
@@ -199,6 +171,29 @@ for (let i = 0; i < windowData.length - 1; i++) {
     🚨 No data &gt; 10 seconds
   </div>
 )}
+    </header>
+<div className="d-flex flex-wrap mt-4 w-100 gap-0.1">
+      <select
+  value={windowSize}
+  onChange={(e) => setWindowSize(Number(e.target.value))}
+  className="form-select w-auto"
+>
+  <option value={5}>Last 5 min</option>
+  <option value={15}>Last 15 min</option>
+  <option value={30}>Last 30 min</option>
+</select>
+
+  <button
+  className="btn btn-primary"
+  onClick={() => {
+    const filename = `window_${windowSize}min_${Date.now()}.csv`;
+    exportToCSV(windowData, filename);
+  }}
+>
+  Export CSV
+</button>
+
+</div>
 
 
 
@@ -268,6 +263,6 @@ for (let i = 0; i < windowData.length - 1; i++) {
   </div>
 </div>
 
-    </div>
+    </main>
   );
 }
