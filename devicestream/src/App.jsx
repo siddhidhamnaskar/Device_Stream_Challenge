@@ -21,6 +21,7 @@ import {
 export default function App() {
   const [data, setData] = useState([]);
   const [windowSize, setWindowSize] = useState(5); // default 15 min
+  const [useSSE, setUseSSE] = useState(false);
 
 
   useEffect(() => {
@@ -31,6 +32,35 @@ export default function App() {
 const windowData = data.filter(
   d => (now - d.ts) / 1000 <= windowSize * 60
 );
+
+
+  useEffect(() => {
+  if (!useSSE) return; // if not SSE mode, don't run this
+
+  const evt = new EventSource("http://localhost:8080/stream");
+
+  evt.onmessage = (e) => {
+    try {
+      const obj = JSON.parse(e.data);
+      obj.ts = new Date(obj.ts);
+
+      // Add to data state
+      setData((prev) => [...prev, obj]);
+
+      // Update last message time (for gap detector)
+      setLastMessageTime(new Date());
+    } catch (err) {
+      console.error("SSE parse error:", err);
+    }
+  };
+
+  evt.onerror = () => {
+    console.error("SSE connection lost");
+  };
+
+  return () => evt.close();
+}, [useSSE]);
+
 
 
   const chartData = windowData.map((d) => ({
@@ -112,6 +142,18 @@ for (let i = 0; i < windowData.length - 1; i++) {
   <option value={15}>Last 15 min</option>
   <option value={30}>Last 30 min</option>
 </select>
+<div className="form-check form-switch mb-3">
+  <input
+    className="form-check-input"
+    type="checkbox"
+    checked={useSSE}
+    onChange={() => setUseSSE(!useSSE)}
+  />
+  <label className="form-check-label">
+    Live SSE (http://localhost:8080/stream)
+  </label>
+</div>
+
   <button
   className="btn btn-primary"
   onClick={() => {
