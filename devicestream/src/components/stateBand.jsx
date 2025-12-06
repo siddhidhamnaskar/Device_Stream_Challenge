@@ -1,34 +1,27 @@
-export default function StateBand({ data, stateColor }) {
-  if (!data.length) return null;
+import React from 'react';
 
-  const height = 22;
-
+const StateBand = React.memo(({ data, stateColor }) => {
   return (
-    <div className="card mb-3">
-      <div className="card-body py-2">
-        <h6 className="text-muted mb-2">Machine State</h6>
-
-        <div style={{ width: "100%", height }}>
-          <svg width="100%" height={height}>
-            {data.map((d, i) => {
-              const blockWidth = 100 / data.length; // equal width segments
-
-              return (
-                <rect
-                  key={i}
-                  x={(i * blockWidth) + "%"}
-                  y={0}
-                  width={blockWidth + "%"}
-                  height={height}
-                  fill={stateColor[d.state]}
-                />
-              );
-            })}
-          </svg>
-        </div>
+    <div className="state-band-container">
+      <h6 className="text-muted mb-2">State Timeline</h6>
+      <div className="state-band">
+        {data.map((segment, idx) => (
+          <div
+            key={idx}
+            className="state-segment"
+            style={{
+              backgroundColor: stateColor[segment.state] || "#ccc",
+              width: `${(segment.duration / 300) * 100}%`, // Assuming 5 min window
+              minWidth: "2px",
+            }}
+            title={`${segment.state}: ${segment.duration.toFixed(1)}s`}
+          />
+        ))}
       </div>
     </div>
   );
-}
+});
 
+StateBand.displayName = 'StateBand';
 
+export default StateBand;

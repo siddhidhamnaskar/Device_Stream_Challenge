@@ -9,12 +9,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default React.memo(function LineChartComponent({ data, lines }) {
+function LineChartComponent({ data, lines }) {
   return (
     <div className="card mb-3">
       <div className="card-body">
         <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={data}>
+          <LineChart  data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="time" />
             <YAxis />
@@ -27,6 +27,9 @@ export default React.memo(function LineChartComponent({ data, lines }) {
       </div>
     </div>
   );
-})
+}
+
+export default React.memo(LineChartComponent);
+
 
 

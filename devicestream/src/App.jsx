@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, Suspense, lazy } from "react";
 import { loadJsonl } from "./hooks/useJsonlLoader";
 
 import KPICard from "./components/KPIcard";
-import LineChartComponent from "./components/linearChart";
 import Insights from "./components/insights";
 import StateBand from "./components/stateBand";
-import Sparkline from "./components/sparkline";
 import { exportToCSV } from "./utils/exportCSV";
 import './App.css'
+
+// Lazy load heavy components
+const LineChartComponent = lazy(() => import("./components/linearChart"));
+const Sparkline = lazy(() => import("./components/sparkline"));
 
 
 import {
@@ -61,22 +63,22 @@ useEffect(() => {
 
   const evt = new EventSource("http://localhost:8080/stream");
 
+  let updateTimeout;
+
   evt.onmessage = (e) => {
     try {
-
-      // const now = Date.now();
-      // if (now - lastRender.current < 2000) return; // update every 2 seconds
-      // lastRender.current = now;
       const obj = JSON.parse(e.data);
       obj.ts = new Date(obj.ts);
 
-      // Add to data state
-      setData(prev=> [...prev, obj]);
-      // setData(prev => {
-      //   const updated = [...prev, obj];
-      //   return updated.slice(300);   // keep max 300 points (5 min)
-      // });
-
+      // Debounce updates to reduce re-renders
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => {
+        setData(prev => {
+          const updated = [...prev, obj];
+          // Keep only last 500 points to prevent memory issues
+          return updated.slice(-500);
+        });
+      }, 100); // Update every 100ms max
 
       // Update last message time (for gap detector)
       setLastMessageTime(new Date());
@@ -89,18 +91,21 @@ useEffect(() => {
     console.error("SSE connection lost");
   };
 
-  return () => evt.close();
+  return () => {
+    evt.close();
+    clearTimeout(updateTimeout);
+  };
 }, [useSSE]);
 
 
 
-  const chartData = windowData.map((d) => ({
+  const chartData = useMemo(() => windowData.slice(-100).map((d) => ({
     time: d.ts.toLocaleTimeString(),
     kw: d.kw,
     temp: d.temp_c,
     vr: d.vr,
     ir: d.ir,
-  }));
+  })), [windowData]);
 
   const uptime = useMemo(() => computeUptimePercents(windowData), [windowData]);
 const avgKwVal = useMemo(() => avgKW(windowData), [windowData]);
@@ -110,17 +115,17 @@ const throughputVal = useMemo(() => throughput(windowData), [windowData]);
 const imbalanceVal = useMemo(() => phaseImbalancePercent(windowData), [windowData]);
 
 
-  const throughputData = windowData.map((d, i) => {
+  const throughputData = useMemo(() => windowData.slice(-100).map((d, i) => {
   if (i < 60) return { time: d.ts, rate: 0 };
 
-  const delta = d.count_total - data[i - 60].count_total;
+  const delta = d.count_total - data[i - 60]?.count_total || 0;
   const unitsPerMin = delta; // because 60 sec window
 
   return {
     time: d.ts.toLocaleTimeString(),
     rate: unitsPerMin
   };
-});
+}), [windowData, data]);
 
 
 
@@ -143,18 +148,20 @@ const stateColor = {
   OFF: "#6c757d"      // gray
 };
 
-const stateBandData = [];
+const stateBandData = useMemo(() => {
+  const result = [];
+  for (let i = 0; i < windowData.length - 1; i++) {
+    const start = windowData[i].ts;
+    const end = windowData[i + 1].ts;
+    const durationSec = (end - start) / 1000;
 
-for (let i = 0; i < windowData.length - 1; i++) {
-  const start = windowData[i].ts;
-  const end = windowData[i + 1].ts;
-  const durationSec = (end - start) / 1000;
-
-  stateBandData.push({
-    state: windowData[i].state,
-    duration: durationSec
-  });
-}
+    result.push({
+      state: windowData[i].state,
+      duration: durationSec
+    });
+  }
+  return result;
+}, [windowData]);
 
 
 
@@ -212,14 +219,7 @@ for (let i = 0; i < windowData.length - 1; i++) {
      <div className="d-flex gap-3 flex-wrap">
 
   {/* GRID SECTION (CSS GRID) */}
-  <div
-    style={{
-      display: "grid",
-       gridTemplateColumns: "repeat(3, 1fr)",   
-      gap: "6px",
-      flexGrow: 2
-    }}
-  >
+  <div className="grid-section">
     <KPICard title="Uptime %" value={`${uptime.RUN.toFixed(1)}%`} />
     <KPICard title="Avg kW" value={avgKwVal.toFixed(2)} />
     <KPICard title="Energy" value={`${energyVal.toFixed(2)} kWh`} />
@@ -229,7 +229,7 @@ for (let i = 0; i < windowData.length - 1; i++) {
   </div>
 
   {/* INSIGHTS */}
-  <div style={{ width: "280px" }}>
+  <div className="insights-width">
     <Insights insights={insights} />
   </div>
 
@@ -241,26 +241,32 @@ for (let i = 0; i < windowData.length - 1; i++) {
      <div className="d-flex flex-wrap mt-4 w-100 gap-0.1">
   {/* LEFT COLUMN */}
   <div className="w-50">
-    <LineChartComponent
-      data={chartData}
-      lines={[{ key: "kw", color: "#0d6efd" }]}
-    />
+    <Suspense fallback={<div>Loading chart...</div>}>
+      <LineChartComponent
+        data={chartData}
+        lines={[{ key: "kw", color: "#0d6efd" }]}
+      />
+    </Suspense>
     <StateBand
   data={stateBandData}
   stateColor={stateColor}
- 
+
 />
 
     </div>
    <div className="w-50">
-    <LineChartComponent
-      data={chartData}
-      lines={[
-        { key: "ir", color: "red" },
-        { key: "vr", color: "green" },
-      ]}
-    />
-    <Sparkline data={throughputData} />
+    <Suspense fallback={<div>Loading chart...</div>}>
+      <LineChartComponent
+        data={chartData}
+        lines={[
+          { key: "ir", color: "red" },
+          { key: "vr", color: "green" },
+        ]}
+      />
+    </Suspense>
+    <Suspense fallback={<div>Loading sparkline...</div>}>
+      <Sparkline data={throughputData} />
+    </Suspense>
 
   </div>
   
@@ -269,7 +275,7 @@ for (let i = 0; i < windowData.length - 1; i++) {
 
 
   {/* RIGHT COLUMN (if any) */}
-  <div style={{ flex: "0 0 280px" }}>
+  <div className="right-column">
     {/* You can put Insights or any sidebar here */}
   </div>
 </div>
