@@ -190,95 +190,96 @@ const stateBandData = useMemo(() => {
   </div>
 )}
     </header>
-<div className="d-flex flex-wrap mt-4 w-100 gap-0.1">
-      <select
-  value={windowSize}
-  onChange={(e) => setWindowSize(Number(e.target.value))}
-  className="form-select w-auto"
->
-  <option value={5}>Last 5 min</option>
-  <option value={15}>Last 15 min</option>
-  <option value={30}>Last 30 min</option>
-</select>
+      <nav className="d-flex flex-wrap mt-4 w-100 gap-0.1" aria-label="Dashboard controls">
+        <select
+          value={windowSize}
+          onChange={(e) => setWindowSize(Number(e.target.value))}
+          className="form-select w-auto"
+          aria-label="Select time window"
+        >
+          <option value={5}>Last 5 min</option>
+          <option value={15}>Last 15 min</option>
+          <option value={30}>Last 30 min</option>
+        </select>
 
-  <button
-  className="btn btn-primary"
-  onClick={() => {
-    const filename = `window_${windowSize}min_${Date.now()}.csv`;
-    exportToCSV(windowData, filename);
-  }}
->
-  Export CSV
-</button>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            const filename = `window_${windowSize}min_${Date.now()}.csv`;
+            exportToCSV(windowData, filename);
+          }}
+          aria-label="Export current data window to CSV file"
+        >
+          Export CSV
+        </button>
+      </nav>
 
-</div>
+      <section className="d-flex gap-3 flex-wrap" aria-labelledby="metrics-section">
+        <h2 id="metrics-section" className="visually-hidden">Key Performance Metrics</h2>
 
+        {/* GRID SECTION (CSS GRID) */}
+        <div className="grid-section" role="region" aria-labelledby="kpi-grid">
+          <h3 id="kpi-grid" className="visually-hidden">KPI Cards</h3>
+          <KPICard title="Uptime %" value={`${uptime.RUN.toFixed(1)}%`} />
+          <KPICard title="Avg kW" value={avgKwVal.toFixed(2)} />
+          <KPICard title="Energy" value={`${energyVal.toFixed(2)} kWh`} />
+          <KPICard title="Throughput" value={throughputVal.toFixed(2)} />
+          <KPICard title="PF" value={pfVal.toFixed(2)} />
+          <KPICard title="Imbalance" value={`${imbalanceVal.toFixed(1)}%`} />
+        </div>
 
-
-
-     <div className="d-flex gap-3 flex-wrap">
-
-  {/* GRID SECTION (CSS GRID) */}
-  <div className="grid-section">
-    <KPICard title="Uptime %" value={`${uptime.RUN.toFixed(1)}%`} />
-    <KPICard title="Avg kW" value={avgKwVal.toFixed(2)} />
-    <KPICard title="Energy" value={`${energyVal.toFixed(2)} kWh`} />
-    <KPICard title="Throughput" value={throughputVal.toFixed(2)} />
-    <KPICard title="PF" value={pfVal.toFixed(2)} />
-    <KPICard title="Imbalance" value={`${imbalanceVal.toFixed(1)}%`} />
-  </div>
-
-  {/* INSIGHTS */}
-  <div className="insights-width">
-    <Insights insights={insights} />
-  </div>
-
-</div>
-
-
-
-
-     <div className="d-flex flex-wrap mt-4 w-100 gap-0.1">
-  {/* LEFT COLUMN */}
-  <div className="w-50">
-    <Suspense fallback={<div>Loading chart...</div>}>
-      <LineChartComponent
-        data={chartData}
-        lines={[{ key: "kw", color: "#0d6efd" }]}
-      />
-    </Suspense>
-    <StateBand
-  data={stateBandData}
-  stateColor={stateColor}
-
-/>
-
-    </div>
-   <div className="w-50">
-    <Suspense fallback={<div>Loading chart...</div>}>
-      <LineChartComponent
-        data={chartData}
-        lines={[
-          { key: "ir", color: "red" },
-          { key: "vr", color: "green" },
-        ]}
-      />
-    </Suspense>
-    <Suspense fallback={<div>Loading sparkline...</div>}>
-      <Sparkline data={throughputData} />
-    </Suspense>
-
-  </div>
-  
+        {/* INSIGHTS */}
+        <aside className="insights-width" role="complementary" aria-labelledby="insights-section">
+          <h3 id="insights-section" className="visually-hidden">Device Insights</h3>
+          <Insights insights={insights} />
+        </aside>
+      </section>
 
 
 
 
-  {/* RIGHT COLUMN (if any) */}
-  <div className="right-column">
-    {/* You can put Insights or any sidebar here */}
-  </div>
-</div>
+      <section className="d-flex flex-wrap mt-4 w-100 gap-0.1" aria-labelledby="charts-section">
+        <h2 id="charts-section" className="visually-hidden">Device Performance Charts</h2>
+
+        {/* LEFT COLUMN */}
+        <div className="w-50" role="region" aria-labelledby="power-chart">
+          <h3 id="power-chart" className="visually-hidden">Power Consumption Chart</h3>
+          <Suspense fallback={<div aria-live="polite">Loading power chart...</div>}>
+            <LineChartComponent
+              data={chartData}
+              lines={[{ key: "kw", color: "#0d6efd" }]}
+            />
+          </Suspense>
+          <div role="region" aria-labelledby="state-timeline">
+            <h4 id="state-timeline" className="visually-hidden">Device State Timeline</h4>
+            <StateBand
+              data={stateBandData}
+              stateColor={stateColor}
+            />
+          </div>
+        </div>
+
+        <div className="w-50" role="region" aria-labelledby="electrical-charts">
+          <h3 id="electrical-charts" className="visually-hidden">Electrical Parameters Charts</h3>
+          <Suspense fallback={<div aria-live="polite">Loading electrical charts...</div>}>
+            <LineChartComponent
+              data={chartData}
+              lines={[
+                { key: "ir", color: "red" },
+                { key: "vr", color: "green" },
+              ]}
+            />
+          </Suspense>
+          <Suspense fallback={<div aria-live="polite">Loading throughput chart...</div>}>
+            <Sparkline data={throughputData} />
+          </Suspense>
+        </div>
+
+        {/* RIGHT COLUMN (if any) */}
+        <aside className="right-column" role="complementary">
+          {/* Additional insights or sidebar content can be added here */}
+        </aside>
+      </section>
 
     </main>
   );
