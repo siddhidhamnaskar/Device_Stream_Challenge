@@ -25,6 +25,7 @@ export default function App() {
   const [useSSE, setUseSSE] = useState(true);
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [gapDetected, setGapDetected] = useState(false);
+  // const lastRender = useRef(Date.now());
 
 
 
@@ -62,15 +63,20 @@ useEffect(() => {
 
   evt.onmessage = (e) => {
     try {
+
+      // const now = Date.now();
+      // if (now - lastRender.current < 2000) return; // update every 2 seconds
+      // lastRender.current = now;
       const obj = JSON.parse(e.data);
       obj.ts = new Date(obj.ts);
 
       // Add to data state
-      setData(prev => {
-        const updated = [...prev, obj];
-        if (updated.length > 300) updated.shift();
-        return updated;
-      });
+      setData(prev=> [...prev, obj]);
+      // setData(prev => {
+      //   const updated = [...prev, obj];
+      //   return updated.slice(300);   // keep max 300 points (5 min)
+      // });
+
 
       // Update last message time (for gap detector)
       setLastMessageTime(new Date());
@@ -96,12 +102,13 @@ useEffect(() => {
     ir: d.ir,
   }));
 
-  const uptime = computeUptimePercents(windowData);
-  const avgKwVal = avgKW(windowData);
-  const energyVal = energyKWh(windowData);
-  const pfVal = avgPF(windowData);
-  const throughputVal = throughput(windowData);
-  const imbalanceVal = phaseImbalancePercent(windowData);
+  const uptime = useMemo(() => computeUptimePercents(windowData), [windowData]);
+const avgKwVal = useMemo(() => avgKW(windowData), [windowData]);
+const energyVal = useMemo(() => energyKWh(windowData), [windowData]);
+const pfVal = useMemo(() => avgPF(windowData), [windowData]);
+const throughputVal = useMemo(() => throughput(windowData), [windowData]);
+const imbalanceVal = useMemo(() => phaseImbalancePercent(windowData), [windowData]);
+
 
   const throughputData = windowData.map((d, i) => {
   if (i < 60) return { time: d.ts, rate: 0 };

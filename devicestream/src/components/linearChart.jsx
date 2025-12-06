@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function LineChartComponent({ data, lines }) {
+export default React.memo(function LineChartComponent({ data, lines }) {
   return (
     <div className="card mb-3">
       <div className="card-body">
@@ -27,6 +27,6 @@ export default function LineChartComponent({ data, lines }) {
       </div>
     </div>
   );
-}
+})
 
 

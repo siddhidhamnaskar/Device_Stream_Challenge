@@ -38,6 +38,7 @@ export function avgPF(data) {
 }
 
 export function throughput(data) {
+  // console.log(data);
   if (!data.length) return 0;
   const diff = data[data.length - 1].count_total - data[0].count_total;
   const minutes = (data[data.length - 1].ts - data[0].ts) / 60000;

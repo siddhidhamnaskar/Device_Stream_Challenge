@@ -1,6 +1,6 @@
 
 
-export default function ChartCard({ title, children }) {
+export default React.memo(function ChartCard({ title, children }) {
   return (
     <div className="card shadow-sm mb-4">
       <div className="card-body">
@@ -9,4 +9,4 @@ export default function ChartCard({ title, children }) {
       </div>
     </div>
   );
-}
+})
