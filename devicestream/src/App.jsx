@@ -66,7 +66,11 @@ useEffect(() => {
       obj.ts = new Date(obj.ts);
 
       // Add to data state
-      setData((prev) => [...prev, obj]);
+      setData(prev => {
+        const updated = [...prev, obj];
+        if (updated.length > 300) updated.shift();
+        return updated;
+      });
 
       // Update last message time (for gap detector)
       setLastMessageTime(new Date());

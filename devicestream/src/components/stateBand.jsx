@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function StateBand({ data, stateColor }) {
   if (!data.length) return null;
 
@@ -32,3 +30,5 @@ export default function StateBand({ data, stateColor }) {
     </div>
   );
 }
+
+
