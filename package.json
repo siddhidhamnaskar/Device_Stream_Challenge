@@ -1,4 +1,11 @@
 {
+  "name": "device-stream-backend",
+  "version": "1.0.0",
+  "main": "live_sse_server.js",
+  "scripts": {
+    "start": "node live_sse_server.js",
+    "build": "echo 'No build needed for backend'"
+  },
   "devDependencies": {
     "terser": "^5.44.1"
   }
