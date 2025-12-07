@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #1a1a1a; /* High contrast text color */
+  background-color: #ffffff; /* Light background for better contrast */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,68 +15,131 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: #0066cc; /* High contrast blue */
+  text-decoration: underline;
 }
 a:hover {
-  color: #535bf2;
+  color: #004499; /* Darker blue for hover */
 }
 
-/* body {
+body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  background-color: #f8f9fa;
+  color: #1a1a1a; /* High contrast text */
   min-width: 320px;
   min-height: 100vh;
-} */
+}
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
 }
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border: 2px solid #0066cc;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #0066cc;
+  color: #ffffff;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Touch target size */
 }
 button:hover {
-  border-color: #646cff;
+  background-color: #004499;
+  border-color: #004499;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-
-body {
-  background-color: #f8f9fa;
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
 }
 
 .card {
   border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
 }
 
 .alert-danger {
-  font-size: 14px;
+  font-size: 1rem;
+  background-color: #ffe6e6;
+  color: #cc0000;
+  border: 1px solid #ff9999;
+  padding: 1rem;
+  border-radius: 8px;
 }
 
+/* Responsive design */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
 
-@media (prefers-color-scheme: light) {
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
   :root {
-    color: #213547;
+    color: #000000;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
-  }
+
   button {
-    background-color: #f9f9f9;
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
   }
 }

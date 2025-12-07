@@ -11,6 +11,15 @@ import './App.css'
 const LineChartComponent = lazy(() => import("./components/linearChart"));
 const Sparkline = lazy(() => import("./components/sparkline"));
 
+// Loading component for better UX
+const ChartSkeleton = () => (
+  <div className="card mb-3">
+    <div className="card-body">
+      <div style={{ height: '250px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}></div>
+    </div>
+  </div>
+);
+
 
 import {
   computeUptimePercents,
@@ -72,6 +81,7 @@ useEffect(() => {
 
       // Debounce updates to reduce re-renders
       clearTimeout(updateTimeout);
+      
       updateTimeout = setTimeout(() => {
         setData(prev => {
           const updated = [...prev, obj];
