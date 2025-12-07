@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo, Suspense, lazy } from "react";
-import { loadJsonl } from "./hooks/useJsonlLoader";
 
 
 import KPICard from "./components/KPIcard";
@@ -38,12 +37,6 @@ export default function App() {
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [gapDetected, setGapDetected] = useState(false);
   // const lastRender = useRef(Date.now());
-
-
-
-  useEffect(() => {
-    loadJsonl().then(setData);
-  }, []);
 
   const now = data[data.length - 1]?.ts;
 const windowData = data.filter(
