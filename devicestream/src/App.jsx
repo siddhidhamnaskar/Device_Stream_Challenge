@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, Suspense, lazy } from "react";
 import { loadJsonl } from "./hooks/useJsonlLoader";
 
+
 import KPICard from "./components/KPIcard";
 import Insights from "./components/insights";
 import StateBand from "./components/stateBand";
@@ -86,7 +87,7 @@ useEffect(() => {
         setData(prev => {
           const updated = [...prev, obj];
           // Keep only last 500 points to prevent memory issues
-          return updated.slice(-500);
+          return updated.slice(-900);
         });
       }, 100); // Update every 100ms max
 
@@ -117,7 +118,7 @@ useEffect(() => {
     ir: d.ir,
   })), [windowData]);
 
-  const uptime = useMemo(() => computeUptimePercents(windowData), [windowData]);
+const uptime = useMemo(() => computeUptimePercents(windowData), [windowData]);
 const avgKwVal = useMemo(() => avgKW(windowData), [windowData]);
 const energyVal = useMemo(() => energyKWh(windowData), [windowData]);
 const pfVal = useMemo(() => avgPF(windowData), [windowData]);
@@ -230,12 +231,15 @@ const stateBandData = useMemo(() => {
         {/* GRID SECTION (CSS GRID) */}
         <div className="grid-section" role="region" aria-labelledby="kpi-grid">
           <h3 id="kpi-grid" className="visually-hidden">KPI Cards</h3>
+     
+
           <KPICard title="Uptime %" value={`${uptime.RUN.toFixed(1)}%`} />
+          <KPICard title="Idle %" value={`${uptime.IDLE.toFixed(1)}%`} />
+          <KPICard title="Off %" value={`${uptime.OFF.toFixed(1)}%`} />
           <KPICard title="Avg kW" value={avgKwVal.toFixed(2)} />
           <KPICard title="Energy" value={`${energyVal.toFixed(2)} kWh`} />
           <KPICard title="Throughput" value={throughputVal.toFixed(2)} />
-          <KPICard title="PF" value={pfVal.toFixed(2)} />
-          <KPICard title="Imbalance" value={`${imbalanceVal.toFixed(1)}%`} />
+          
         </div>
 
         {/* INSIGHTS */}
