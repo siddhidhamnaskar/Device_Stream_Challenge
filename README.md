@@ -173,7 +173,6 @@ The device data follows this JSON structure:
 - Visual alert when no data received for >10 seconds
 
 ### Memory Management
-- Keeps only last 500 data points in memory
 - Efficient filtering for time window calculations
 
 ## 🤝 Contributing
