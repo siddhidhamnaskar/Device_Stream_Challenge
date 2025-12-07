@@ -64,7 +64,7 @@ useEffect(() => {
   useEffect(() => {
   if (!useSSE) return; // if not SSE mode, don't run this
 
-  const evt = new EventSource("http://localhost:8080/stream");
+  const evt = new EventSource("https://devicestreamchallenge-production.up.railway.app/stream");
 
   let updateTimeout;
 
