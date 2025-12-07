@@ -11,14 +11,7 @@ import './App.css'
 const LineChartComponent = lazy(() => import("./components/linearChart"));
 const Sparkline = lazy(() => import("./components/sparkline"));
 
-// Loading component for better UX
-const ChartSkeleton = () => (
-  <div className="card mb-3">
-    <div className="card-body">
-      <div style={{ height: '250px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}></div>
-    </div>
-  </div>
-);
+
 
 
 import {
@@ -174,27 +167,30 @@ const stateBandData = useMemo(() => {
 
 
   return (
-    <main className="w-full ">
-      <header className="d-flex justify-content-between align-items-center p-2 bg-dark text-white rounded">
+
+    <main className="w-full">
+      <div className="container">
+        <header className="d-flex justify-content-between align-items-center p-2 bg-dark text-white rounded">
+        <div style={{width:'600px',height:'50px',display:'flex',justifyContent:'center',alignItems:'center'}}>
       <h3 className="m-0">Device Dashboard</h3>
       <span className="badge bg-success">Live SSE</span>
       {gapDetected && (
-  <div
-    style={{
-      backgroundColor: "red",
-      color: "white",
-      padding: "8px 16px",
-      textAlign: "center",
-      fontWeight: "bold",
-      borderRadius: "6px",
-      marginBottom: "10px"
-    }}
-  >
-    🚨 No data &gt; 10 seconds
-  </div>
-)}
-    </header>
-      <nav className="d-flex flex-wrap mt-4 w-100 gap-0.1" aria-label="Dashboard controls">
+        <div
+          style={{
+            backgroundColor: "red",
+            color: "white",
+            padding: "8px 16px",
+            textAlign: "center",
+            fontWeight: "bold",
+            borderRadius: "6px",
+            marginBottom: "10px"
+          }}
+        >
+          🚨 No data &gt; 10 seconds
+        </div>
+      )}
+      </div>
+       <div style={{width:'600px',height:'50px',display:'flex',justifyContent:'center',alignItems:'center'}}>
         <select
           value={windowSize}
           onChange={(e) => setWindowSize(Number(e.target.value))}
@@ -216,14 +212,16 @@ const stateBandData = useMemo(() => {
         >
           Export CSV
         </button>
-      </nav>
+      </div>
+    </header>
+     
 
-      <section className="d-flex gap-3 flex-wrap" aria-labelledby="metrics-section">
+      <section className="d-flex gap-1 flex-wrap" aria-labelledby="metrics-section">
         <h2 id="metrics-section" className="visually-hidden">Key Performance Metrics</h2>
 
         {/* GRID SECTION (CSS GRID) */}
         <div className="grid-section" role="region" aria-labelledby="kpi-grid">
-          <h3 id="kpi-grid" className="visually-hidden">KPI Cards</h3>
+          {/* <h3 id="kpi-grid" className="visually-hidden">KPI Cards</h3> */}
      
 
           <KPICard title="Uptime %" value={`${uptime.RUN.toFixed(1)}%`} />
@@ -236,10 +234,12 @@ const stateBandData = useMemo(() => {
         </div>
 
         {/* INSIGHTS */}
+        <div>
         <aside className="insights-width" role="complementary" aria-labelledby="insights-section">
           <h3 id="insights-section" className="visually-hidden">Device Insights</h3>
           <Insights insights={insights} />
         </aside>
+        </div>
       </section>
 
 
@@ -288,6 +288,7 @@ const stateBandData = useMemo(() => {
         </aside>
       </section>
 
+      </div>
     </main>
   );
 }

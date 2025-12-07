@@ -7,7 +7,7 @@ export default function Sparkline({ data }) {
       <div className="card-body py-2">
         <h6 className="text-muted mb-2">Units/min (Sparkline)</h6>
 
-        <ResponsiveContainer width="100%" height={60}>
+        <ResponsiveContainer width="100%" height={25}>
           <AreaChart data={data}>
             <Tooltip />
             <Area

@@ -13,7 +13,7 @@ function LineChartComponent({ data, lines }) {
   return (
     <div className="card mb-3">
       <div className="card-body">
-        <ResponsiveContainer width="100%" height={250}>
+        <ResponsiveContainer width="100%" height={150}>
           <LineChart  data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="time" />
