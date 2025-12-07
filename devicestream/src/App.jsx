@@ -87,7 +87,7 @@ useEffect(() => {
         setData(prev => {
           const updated = [...prev, obj];
           // Keep only last 500 points to prevent memory issues
-          return updated.slice(-900);
+          return updated;
         });
       }, 100); // Update every 100ms max
 
